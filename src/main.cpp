@@ -26,6 +26,7 @@
 //#define _LIFECOUNTER_
 #define _THERMOMETER_
 //#define _INVERTED_DISPLAY_
+#define _ARROWINDICATORS_
 
 /*
 **------------------------------------------------------------------------------
@@ -210,6 +211,7 @@ void drawGearInfo(int gear)
 
     display.clearDisplay();
 
+    #ifdef _ARROWINDICATORS_
     //Possible changes
     if(gear == 0)
     {
@@ -227,6 +229,7 @@ void drawGearInfo(int gear)
         display.drawBitmap(upXPos, upYPos, upIcon, ARROWICON_WIDTH, ARROWICON_HEIGHT, WHITE);
         display.drawBitmap(dnXPos, dnYPos, dnIcon, ARROWICON_WIDTH, ARROWICON_HEIGHT, WHITE);
     }
+    #endif
 
     //Current gear number
     display.setCursor(gears[gear].xOffset, yBasePos);
