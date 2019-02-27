@@ -63,6 +63,7 @@ const indicator_t gears[7] =
 const int ledPin = 13;
 const int yBasePos = 60;
 
+#ifdef _ARROWINDICATORS_
 const int upXPos = 16;
 const int upYPos = yBasePos + 16;
 const int dnXPos = 0;
@@ -110,6 +111,7 @@ const unsigned char PROGMEM dnIcon[] =
     0x03, 0xc0,
     0x01, 0x80
 };
+#endif
 
 /*
 **------------------------------------------------------------------------------
