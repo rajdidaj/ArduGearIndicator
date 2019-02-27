@@ -16,6 +16,7 @@
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
 #include <fonts/FreeSansBold24pt7b.h>
+#include <stdint.h>
 
 /*
 **------------------------------------------------------------------------------
@@ -36,8 +37,8 @@
 typedef struct
 {
     char name[8];
-    char pin;
-    char xOffset;
+    uint8_t pin;
+    uint8_t xOffset;
 }indicator_t;
 
 /*
@@ -60,19 +61,19 @@ const indicator_t gears[7] =
     { "6", 8, 4 }
 };
 
-const int ledPin = 13;
-const int yBasePos = 60;
+const int16_t ledPin = 13;
+const int16_t yBasePos = 60;
 
 #ifdef _ARROWINDICATORS_
-const int upXPos = 16;
-const int upYPos = yBasePos + 16;
-const int dnXPos = 0;
-const int dnYPos = yBasePos + 16;
+const int16_t upXPos = 16;
+const int16_t upYPos = yBasePos + 16;
+const int16_t dnXPos = 0;
+const int16_t dnYPos = yBasePos + 16;
 
 #define SLEEPDELAY          1000U
 #define ARROWICON_WIDTH     16
 #define ARROWICON_HEIGHT    16
-const unsigned char PROGMEM upIcon[] =
+const uint8_t PROGMEM upIcon[] =
 {
     0x01, 0x80,
     0x03, 0xc0,
@@ -92,7 +93,7 @@ const unsigned char PROGMEM upIcon[] =
     0x07, 0xe0
 };
 
-const unsigned char PROGMEM dnIcon[] =
+const uint8_t PROGMEM dnIcon[] =
 {
     0x07, 0xe0,
     0x0f, 0xf0,
@@ -118,7 +119,7 @@ const unsigned char PROGMEM dnIcon[] =
 ** Function prototypes
 **------------------------------------------------------------------------------
 */
-void drawGearInfo(int);
+void drawGearInfo(int16_t);
 
 /*
 **------------------------------------------------------------------------------
@@ -126,9 +127,9 @@ void drawGearInfo(int);
 **------------------------------------------------------------------------------
 */
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1, 600000, 400000);
-static unsigned long int changeCounter = 0;
+static uint32_t changeCounter = 0;
 static float temperature = 12.34;
-static int firstRun = true;
+static int16_t firstRun = true;
 
 /*
 **------------------------------------------------------------------------------
@@ -166,9 +167,9 @@ void wakeDisplay(Adafruit_SSD1306* display)
 ** See name
 **------------------------------------------------------------------------------
 */
-void setup()
+void setup(void)
 {
-    unsigned int i;
+    uint16_t i;
 
     pinMode(ledPin, OUTPUT);
 
@@ -207,7 +208,7 @@ void setup()
 ** Draws everything about hte current gear
 **------------------------------------------------------------------------------
 */
-void drawGearInfo(int gear)
+void drawGearInfo(int16_t gear)
 {
     static char str[10];
 
@@ -263,8 +264,8 @@ void drawGearInfo(int gear)
 
     display.writeLine(0, 118, 31, 118, WHITE);
 
-    int t = temperature;
-    unsigned int dec = (temperature * 10);
+    int16_t t = temperature;
+    uint16_t dec = (temperature * 10);
     dec %= 10;
     sprintf(str, "% 2d.%1u", t, dec);
     display.setCursor(0, 120);
@@ -281,7 +282,7 @@ void drawGearInfo(int gear)
 ** Checks for gear changes and keeps count of the gear changes so far
 **------------------------------------------------------------------------------
 */
-int gearChanged(int gear, int lastGear)
+int16_t gearChanged(int16_t gear, int16_t lastGear)
 {
     if(!digitalRead(gears[gear].pin) && (gears[gear].pin != lastGear))
     {
@@ -305,11 +306,11 @@ int gearChanged(int gear, int lastGear)
 ** See name
 **------------------------------------------------------------------------------
 */
-void loop()
+void loop(void)
 {
-    static unsigned int checkGear = 0;
-    static unsigned int lastGear = 0;
-    static unsigned int sleepDelay = 0;
+    static uint16_t checkGear = 0;
+    static uint16_t lastGear = 0;
+    static uint16_t sleepDelay = 0;
 
     if(gearChanged(checkGear, lastGear))
     {
