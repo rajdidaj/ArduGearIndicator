@@ -326,8 +326,13 @@ void loop()
         checkGear = 0;
     }
 
-    if(sleepDelay++ == SLEEPDELAY)
+    if(sleepDelay < SLEEPDELAY)
     {
+        sleepDelay++;
+    }
+    else if(sleepDelay == SLEEPDELAY)
+    {
+        sleepDelay++;
         sleepDisplay(&display);
     }
     delay(10);
