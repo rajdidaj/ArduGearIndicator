@@ -64,6 +64,20 @@ const indicator_t gears[7] =
 const int16_t ledPin = 13;
 const int16_t yBasePos = 60;
 
+#ifdef _THERMOMETER_
+const int16_t degXPos = 0;
+const int16_t degYPos = 118;
+#define DEGICON_WIDTH       4
+#define DEGICON_HEIGHT      4
+const uint8_t PROGMEM degIcon[] =
+{
+    0x6f,
+    0x9f,
+    0x9f,
+    0x6f
+};
+#endif
+
 #ifdef _ARROWINDICATORS_
 const int16_t upXPos = 16;
 const int16_t upYPos = yBasePos + 16;
@@ -113,6 +127,8 @@ const uint8_t PROGMEM dnIcon[] =
     0x01, 0x80
 };
 #endif
+
+
 
 /*
 **------------------------------------------------------------------------------
@@ -242,7 +258,7 @@ void drawGearInfo(int16_t gear)
 
     #ifdef _SESSIONCOUNTER_
     //Current session counter
-    display.writeLine(0, 9, 31, 9, WHITE);
+    display.writeLine(0, 11, 31, 11, WHITE);
 
     display.setCursor(0, 7);
     display.setFont();
@@ -260,9 +276,9 @@ void drawGearInfo(int16_t gear)
 
     #ifdef _THERMOMETER_
     //Temperature
+    display.drawBitmap(degXPos, degYPos, degIcon, DEGICON_WIDTH, DEGICON_HEIGHT, WHITE);
     display.setFont();
-
-    display.writeLine(0, 118, 31, 118, WHITE);
+    display.writeLine(0, 116, 31, 116, WHITE);
 
     int16_t t = temperature;
     uint16_t dec = (temperature * 10);
