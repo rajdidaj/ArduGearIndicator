@@ -63,10 +63,13 @@ const indicator_t gears[7] =
 
 const int16_t ledPin = 13;
 const int16_t yBasePos = 60;
+const int16_t yBtmTextPos = 110;
+const int16_t yTopTextPos = 17;
 
 #ifdef _THERMOMETER_
+#define SAMPLEDELAY         100U
 const int16_t degXPos = 0;
-const int16_t degYPos = 118;
+const int16_t degYPos = yBtmTextPos - 2;
 #define DEGICON_WIDTH       4
 #define DEGICON_HEIGHT      4
 const uint8_t PROGMEM degIcon[] =
@@ -136,6 +139,7 @@ const uint8_t PROGMEM dnIcon[] =
 **------------------------------------------------------------------------------
 */
 void drawGearInfo(int16_t);
+float measureT(void);
 
 /*
 **------------------------------------------------------------------------------
@@ -188,6 +192,7 @@ void setup(void)
     uint16_t i;
 
     pinMode(ledPin, OUTPUT);
+    temperature = measureT();
 
     Serial.begin(19200);
     Wire.begin();
@@ -258,9 +263,9 @@ void drawGearInfo(int16_t gear)
 
     #ifdef _SESSIONCOUNTER_
     //Current session counter
-    display.writeLine(0, 11, 31, 11, WHITE);
+    display.writeLine(0, yTopTextPos + 4, 31, yTopTextPos + 4, WHITE);
 
-    display.setCursor(0, 7);
+    display.setCursor(0, yTopTextPos);
     display.setFont();
     sprintf(str, "% 5lu", changeCounter);
     display.print(str);
@@ -268,7 +273,7 @@ void drawGearInfo(int16_t gear)
 
     #ifdef _LIFECOUNTER_
     //Total lifetime counter
-    display.setCursor(0, 120);
+    display.setCursor(0, yBtmTextPos);
     display.setFont();
     sprintf(str, "% 5lu", changeCounter);
     display.print(str);
@@ -278,13 +283,13 @@ void drawGearInfo(int16_t gear)
     //Temperature
     display.drawBitmap(degXPos, degYPos, degIcon, DEGICON_WIDTH, DEGICON_HEIGHT, WHITE);
     display.setFont();
-    display.writeLine(0, 116, 31, 116, WHITE);
+    display.writeLine(0, yBtmTextPos - 4, 31, yBtmTextPos - 4, WHITE);
 
     int16_t t = temperature;
     uint16_t dec = (temperature * 10);
     dec %= 10;
     sprintf(str, "% 2d.%1u", t, dec);
-    display.setCursor(0, 120);
+    display.setCursor(0, yBtmTextPos);
     display.print(str);
     #endif
 
@@ -317,6 +322,25 @@ int16_t gearChanged(int16_t gear, int16_t lastGear)
 
 /*
 **------------------------------------------------------------------------------
+** measureT:
+**
+** Reads a LM335 thermometer on A0 ands returns degrees Celsius
+**------------------------------------------------------------------------------
+*/
+float measureT(void)
+{
+#define CALVALUE 4.92
+
+    float retVal = (float) analogRead(A0);
+    retVal = (retVal*CALVALUE)/1024.0;
+
+    retVal /= 0.01;
+    retVal -= 273.15;
+
+    return retVal;
+}
+/*
+**------------------------------------------------------------------------------
 ** loop:
 **
 ** See name
@@ -326,14 +350,16 @@ void loop(void)
 {
     static uint16_t checkGear = 0;
     static uint16_t lastGear = 0;
-    static uint16_t sleepDelay = 0;
+    static uint16_t sleepTimer = 0;
+    static uint16_t sampleTimer = 0;
+    static int sensorValue = 0;
 
     if(gearChanged(checkGear, lastGear))
     {
         lastGear = gears[checkGear].pin;
 
         wakeDisplay(&display);
-        sleepDelay = 0;
+        sleepTimer = 0;
         drawGearInfo(checkGear);
     }
 
@@ -343,14 +369,20 @@ void loop(void)
         checkGear = 0;
     }
 
-    if(sleepDelay < SLEEPDELAY)
+    if(sleepTimer < SLEEPDELAY)
     {
-        sleepDelay++;
+        sleepTimer++;
     }
-    else if(sleepDelay == SLEEPDELAY)
+    else if(sleepTimer == SLEEPDELAY)
     {
-        sleepDelay++;
+        sleepTimer++;
         sleepDisplay(&display);
+    }
+
+    if(sampleTimer++ > SAMPLEDELAY)
+    {
+        sampleTimer = 0;
+        temperature = measureT();
     }
     delay(10);
 }
