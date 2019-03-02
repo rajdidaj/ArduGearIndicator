@@ -15,6 +15,7 @@
 #include <Wire.h>
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
+#include <Adafruit_ADS1015.h>
 #include <fonts/FreeSansBold24pt7b.h>
 #include <stdint.h>
 
@@ -147,6 +148,7 @@ float measureT(void);
 **------------------------------------------------------------------------------
 */
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1, 600000, 400000);
+Adafruit_ADS1115 adc(0x48);
 static uint32_t changeCounter = 0;
 static float temperature = 12.34;
 static int16_t firstRun = true;
@@ -192,10 +194,11 @@ void setup(void)
     uint16_t i;
 
     pinMode(ledPin, OUTPUT);
-    temperature = measureT();
 
     Serial.begin(19200);
     Wire.begin();
+
+    temperature = measureT();
 
     for(i = 0 ; i < sizeof(gears)/sizeof(indicator_t) ; i++)
     {
@@ -221,6 +224,27 @@ void setup(void)
     wakeDisplay(&display);
     drawGearInfo(1);
 }
+
+#ifdef _THERMOMETER_
+void drawTemperature(void)
+{
+    static char str[10];
+
+    //Clear the screen area
+    display.fillRect(0, yBtmTextPos - 4, SCREEN_HEIGHT, SCREEN_WIDTH - (yBtmTextPos - 4), BLACK);
+    display.drawBitmap(degXPos, degYPos, degIcon, DEGICON_WIDTH, DEGICON_HEIGHT, WHITE);
+    display.setFont();
+    display.writeLine(0, yBtmTextPos - 4, 31, yBtmTextPos - 4, WHITE);
+
+    //Temperature
+    int16_t t = temperature;
+    uint16_t dec = (temperature * 10);
+    dec %= 10;
+    sprintf(str, "% 2d.%1u", t, dec);
+    display.setCursor(0, yBtmTextPos);
+    display.print(str);
+}
+#endif
 
 /*
 **------------------------------------------------------------------------------
@@ -280,17 +304,7 @@ void drawGearInfo(int16_t gear)
     #endif
 
     #ifdef _THERMOMETER_
-    //Temperature
-    display.drawBitmap(degXPos, degYPos, degIcon, DEGICON_WIDTH, DEGICON_HEIGHT, WHITE);
-    display.setFont();
-    display.writeLine(0, yBtmTextPos - 4, 31, yBtmTextPos - 4, WHITE);
-
-    int16_t t = temperature;
-    uint16_t dec = (temperature * 10);
-    dec %= 10;
-    sprintf(str, "% 2d.%1u", t, dec);
-    display.setCursor(0, yBtmTextPos);
-    display.print(str);
+    drawTemperature();
     #endif
 
     display.display();
@@ -329,13 +343,14 @@ int16_t gearChanged(int16_t gear, int16_t lastGear)
 */
 float measureT(void)
 {
-#define CALVALUE 4.92
+#define CALVALUE    6.144
+#define CALOFFSET   4.0
+    float retVal;
 
-    float retVal = (float) analogRead(A0);
-    retVal = (retVal*CALVALUE)/1024.0;
+    retVal = (adc.readADC_SingleEnded(0)*CALVALUE)/32767.0;
 
     retVal /= 0.01;
-    retVal -= 273.15;
+    retVal -= (273.15 + CALOFFSET);
 
     return retVal;
 }
@@ -379,10 +394,14 @@ void loop(void)
         sleepDisplay(&display);
     }
 
+    #ifdef _THERMOMETER_
     if(sampleTimer++ > SAMPLEDELAY)
     {
         sampleTimer = 0;
         temperature = measureT();
+        drawTemperature();
+        display.display();
     }
+    #endif
     delay(10);
 }
