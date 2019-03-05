@@ -18,6 +18,7 @@
 #include <Adafruit_ADS1015.h>
 #include <fonts/FreeSansBold24pt7b.h>
 #include <stdint.h>
+#include <bitmaps.h>
 
 /*
 **------------------------------------------------------------------------------
@@ -71,15 +72,6 @@ const int16_t yTopTextPos = 17;
 #define SAMPLEDELAY         100U
 const int16_t degXPos = 0;
 const int16_t degYPos = yBtmTextPos - 2;
-#define DEGICON_WIDTH       4
-#define DEGICON_HEIGHT      4
-const uint8_t PROGMEM degIcon[] =
-{
-    0x6f,
-    0x9f,
-    0x9f,
-    0x6f
-};
 #endif
 
 #ifdef _ARROWINDICATORS_
@@ -89,47 +81,6 @@ const int16_t dnXPos = 0;
 const int16_t dnYPos = yBasePos + 16;
 
 #define SLEEPDELAY          1000U
-#define ARROWICON_WIDTH     16
-#define ARROWICON_HEIGHT    16
-const uint8_t PROGMEM upIcon[] =
-{
-    0x01, 0x80,
-    0x03, 0xc0,
-    0x07, 0xe0,
-    0x0f, 0xf0,
-    0x1f, 0xf8,
-    0x3f, 0xfc,
-    0x7f, 0xfe,
-    0x7f, 0xfe,
-    0x0f, 0xf0,
-    0x0f, 0xf0,
-    0x0f, 0xf0,
-    0x0f, 0xf0,
-    0x0f, 0xf0,
-    0x0f, 0xf0,
-    0x0f, 0xf0,
-    0x07, 0xe0
-};
-
-const uint8_t PROGMEM dnIcon[] =
-{
-    0x07, 0xe0,
-    0x0f, 0xf0,
-    0x0f, 0xf0,
-    0x0f, 0xf0,
-    0x0f, 0xf0,
-    0x0f, 0xf0,
-    0x0f, 0xf0,
-    0x0f, 0xf0,
-    0x7f, 0xfe,
-    0x7f, 0xfe,
-    0x3f, 0xfc,
-    0x1f, 0xf8,
-    0x0f, 0xf0,
-    0x07, 0xe0,
-    0x03, 0xc0,
-    0x01, 0x80
-};
 #endif
 
 
