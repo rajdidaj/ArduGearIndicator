@@ -1,0 +1,107 @@
+Netlist
+
+Exported from mcu.sch at 2019-03-24 13:43
+
+EAGLE Version 9.3.1 Copyright (c) 1988-2019 Autodesk, Inc.
+
+Net      Part     Pad      Pin        Sheet
+
++5V      D8       C        C          1
+         IC2      20       AVCC       1
+         IC2      7        VCC        1
+         R1       2        2          1
+         R2       2        2          1
+         R3       2        2          1
+         R4       2        2          1
+         R5       2        2          1
+         R6       2        2          1
+         R7       2        2          1
+         R8       2        2          1
+         SV3      4        4          1
+
+GND      C1       2        2          1
+         C2       1        1          1
+         IC2      22       AGND       1
+         IC2      8        GND        1
+         SV2      6        6          1
+         SV3      1        1          1
+
+N$1      D7       C        C          1
+         SV1      7        7          1
+
+N$2      D6       C        C          1
+         SV1      6        6          1
+
+N$3      D5       C        C          1
+         SV1      5        5          1
+
+N$4      D4       C        C          1
+         SV1      4        4          1
+
+N$5      D3       C        C          1
+         SV1      3        3          1
+
+N$6      D2       C        C          1
+         SV1      2        2          1
+
+N$7      D1       C        C          1
+         SV1      1        1          1
+
+N$8      D7       A        A          1
+         IC2      14       (PCI0/ICP/CLKO)PB0 1
+         R7       1        1          1
+
+N$9      D6       A        A          1
+         IC2      13       (PCI23/AIN1)PD7 1
+         R6       1        1          1
+
+N$10     D5       A        A          1
+         IC2      12       (PCI22/AIN0OC0A)PD6 1
+         R5       1        1          1
+
+N$11     D4       A        A          1
+         IC2      11       (PCI21/T1/OC0B)PD5 1
+         R4       1        1          1
+
+N$12     D3       A        A          1
+         IC2      6        (PCI20/XCK/T0)PD4 1
+         R3       1        1          1
+
+N$13     D2       A        A          1
+         IC2      5        (PCI19/INT1/OC2B)PD3 1
+         R2       1        1          1
+
+N$14     D1       A        A          1
+         IC2      4        (PCI18/INT0)PD2 1
+         R1       1        1          1
+
+N$16     C2       2        2          1
+         IC2      9        PB6(XTAL1/TOSC1/PCI6) 1
+         Q1       2        2          1
+
+N$17     C1       1        1          1
+         IC2      10       PB7(XTAL2/TOSC2/PCI7) 1
+         Q1       1        1          1
+
+N$18     IC2      18       (PCI4/MISO)PB4 1
+         SV2      1        1          1
+
+N$19     IC2      19       (PCI5/SCK)PB5 1
+         SV2      3        3          1
+
+N$21     IC2      17       (PCI3/MOSI/OC2A)PB3 1
+         SV2      4        4          1
+
+N$23     IC2      28       (PCI13/ADC5/SCL)PC5 1
+         SV3      3        3          1
+
+N$24     IC2      27       (PCI12/ADC4/SDA)PC4 1
+         SV3      2        2          1
+
+N$25     D8       A        A          1
+         SV2      2        2          1
+
+RESET    IC2      1        PC6(/RESET/PCI14) 1
+         R8       1        1          1
+         SV2      5        5          1
+
