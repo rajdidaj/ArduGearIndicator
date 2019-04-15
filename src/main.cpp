@@ -25,11 +25,15 @@
 ** Macros
 **------------------------------------------------------------------------------
 */
-#define _SESSIONCOUNTER_
-//#define _LIFECOUNTER_
-#define _THERMOMETER_
+#define PORTRAIT    0
+#define LANDSCAPE   1
+
+
+//#define _SESSIONCOUNTER_
+//#define _THERMOMETER_
 //#define _INVERTED_DISPLAY_
 #define _ARROWINDICATORS_
+#define ORIENTATION LANDSCAPE
 
 /*
 **------------------------------------------------------------------------------
@@ -52,6 +56,7 @@ typedef struct
 #define SCREEN_WIDTH         128        // OLED display width, in pixels
 #define SCREEN_HEIGHT        32         // OLED display height, in pixels
 
+#if (ORIENTATION == PORTRAIT)
 const indicator_t gears[7] =
 {
     { "1", 2, 4 },
@@ -62,28 +67,53 @@ const indicator_t gears[7] =
     { "5", 7, 4 },
     { "6", 8, 4 }
 };
+#elif (ORIENTATION == LANDSCAPE)
+const indicator_t gears[7] =
+{
+    { "1", 2, 64 },
+    { "N", 3, 60 },
+    { "2", 4, 64 },
+    { "3", 5, 64 },
+    { "4", 6, 64 },
+    { "5", 7, 64 },
+    { "6", 8, 64 }
+};
+#endif
 
 const int16_t ledPin = 13;
+
+#if (ORIENTATION == PORTRAIT)
 const int16_t yBasePos = 60;
-const int16_t yBtmTextPos = 110;
+const int16_t tempYPos = 110;
 const int16_t yTopTextPos = 17;
+#elif (ORIENTATION == LANDSCAPE)
+const int16_t yBasePos = 32;
+const int16_t tempYPos = 30;
+const int16_t yTopTextPos = 0;
+#endif
 
 #ifdef _THERMOMETER_
 #define SAMPLEDELAY         100U
 const int16_t degXPos = 0;
-const int16_t degYPos = yBtmTextPos - 2;
+const int16_t degYPos = tempYPos - 2;
 #endif
 
 #ifdef _ARROWINDICATORS_
+
+#if (ORIENTATION == PORTRAIT)
 const int16_t upXPos = 16;
 const int16_t upYPos = yBasePos + 16;
 const int16_t dnXPos = 0;
 const int16_t dnYPos = yBasePos + 16;
-
-#define SLEEPDELAY          1000U
+#elif (ORIENTATION == LANDSCAPE)
+const int16_t upXPos = 100;
+const int16_t upYPos = yBasePos - 33;
+const int16_t dnXPos = 100;
+const int16_t dnYPos = yBasePos - 15;
+#endif
 #endif
 
-
+#define SLEEPDELAY          1000U
 
 /*
 **------------------------------------------------------------------------------
@@ -98,7 +128,7 @@ float measureT(void);
 ** Locals
 **------------------------------------------------------------------------------
 */
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1, 600000, 400000);
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1, 200000, 200000);
 Adafruit_ADS1115 adc(0x48);
 static uint32_t changeCounter = 0;
 static float temperature = 12.34;
@@ -166,7 +196,11 @@ void setup(void)
     display.clearDisplay();
     display.setTextSize(1);      // Normal 1:1 pixel scale
     display.setTextColor(WHITE); // Draw white text
+#if (ORIENTATION == PORTRAIT)
     display.setRotation(1);
+#elif (ORIENTATION == LANDSCAPE)
+    display.setRotation(0);
+#endif
     display.cp437(true);
     #ifdef _INVERTED_DISPLAY_
     display.invertDisplay(true);
@@ -182,17 +216,27 @@ void drawTemperature(void)
     static char str[10];
 
     //Clear the screen area
-    display.fillRect(0, yBtmTextPos - 4, SCREEN_HEIGHT, SCREEN_WIDTH - (yBtmTextPos - 4), BLACK);
+#if (ORIENTATION == PORTRAIT)
+    display.fillRect(0, tempYPos - 4, SCREEN_HEIGHT, SCREEN_WIDTH - (tempYPos - 4), BLACK);
     display.drawBitmap(degXPos, degYPos, degIcon, DEGICON_WIDTH, DEGICON_HEIGHT, WHITE);
     display.setFont();
-    display.writeLine(0, yBtmTextPos - 4, 31, yBtmTextPos - 4, WHITE);
-
+    display.writeLine(0, tempYPos - 4, 31, tempYPos - 4, WHITE);
+#elif (ORIENTATION == LANDSCAPE)
+    display.fillRect(0, SCREEN_HEIGHT, SCREEN_HEIGHT, 32, BLACK);
+    display.drawBitmap(degXPos, degYPos, degIcon, DEGICON_WIDTH, DEGICON_HEIGHT, WHITE);
+    display.setFont();
+    display.writeLine(0, tempYPos - 4, 31, tempYPos - 4, WHITE);
+#endif
     //Temperature
     int16_t t = temperature;
     uint16_t dec = (temperature * 10);
     dec %= 10;
     sprintf(str, "% 2d.%1u", t, dec);
-    display.setCursor(0, yBtmTextPos);
+#if (ORIENTATION == PORTRAIT)
+    display.setCursor(0, tempYPos);
+#elif (ORIENTATION == LANDSCAPE)
+    display.setCursor(0, tempYPos);
+#endif
     display.print(str);
 }
 #endif
@@ -241,14 +285,6 @@ void drawGearInfo(int16_t gear)
     display.writeLine(0, yTopTextPos + 4, 31, yTopTextPos + 4, WHITE);
 
     display.setCursor(0, yTopTextPos);
-    display.setFont();
-    sprintf(str, "% 5lu", changeCounter);
-    display.print(str);
-    #endif
-
-    #ifdef _LIFECOUNTER_
-    //Total lifetime counter
-    display.setCursor(0, yBtmTextPos);
     display.setFont();
     sprintf(str, "% 5lu", changeCounter);
     display.print(str);
