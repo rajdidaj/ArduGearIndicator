@@ -29,8 +29,8 @@
 #define LANDSCAPE   1
 
 
-//#define _SESSIONCOUNTER_
-//#define _THERMOMETER_
+#define _SESSIONCOUNTER_
+#define _THERMOMETER_
 //#define _INVERTED_DISPLAY_
 #define _ARROWINDICATORS_
 #define ORIENTATION LANDSCAPE
@@ -88,14 +88,19 @@ const int16_t tempYPos = 110;
 const int16_t yTopTextPos = 17;
 #elif (ORIENTATION == LANDSCAPE)
 const int16_t yBasePos = 32;
-const int16_t tempYPos = 30;
+const int16_t tempYPos = 20;
 const int16_t yTopTextPos = 0;
 #endif
 
 #ifdef _THERMOMETER_
 #define SAMPLEDELAY         100U
+#if (ORIENTATION == PORTRAIT)
 const int16_t degXPos = 0;
 const int16_t degYPos = tempYPos - 2;
+#elif (ORIENTATION == LANDSCAPE)
+const int16_t degXPos = 51;
+const int16_t degYPos = tempYPos - 2;
+#endif
 #endif
 
 #ifdef _ARROWINDICATORS_
@@ -210,6 +215,26 @@ void setup(void)
     drawGearInfo(1);
 }
 
+#ifdef _SESSIONCOUNTER_
+void drawSessionCounter(void)
+{
+    static char str[10];
+
+    //Current session counter
+#if (ORIENTATION == PORTRAIT)
+    display.writeLine(0, yTopTextPos + 4, 31, yTopTextPos + 4, WHITE);
+    display.setCursor(0, yTopTextPos);
+#elif (ORIENTATION == LANDSCAPE)
+    display.writeLine(0, yTopTextPos + 15, 58, yTopTextPos + 15, WHITE);    //horizontal line
+    display.writeLine(58, 0, 58, SCREEN_HEIGHT, WHITE);                     //vertical line
+    display.setCursor(26, yTopTextPos+10);
+#endif
+    display.setFont();
+    sprintf(str, "% 5lu", changeCounter);
+    display.print(str);
+}
+#endif
+
 #ifdef _THERMOMETER_
 void drawTemperature(void)
 {
@@ -222,11 +247,13 @@ void drawTemperature(void)
     display.setFont();
     display.writeLine(0, tempYPos - 4, 31, tempYPos - 4, WHITE);
 #elif (ORIENTATION == LANDSCAPE)
-    display.fillRect(0, SCREEN_HEIGHT, SCREEN_HEIGHT, 32, BLACK);
+    display.fillRect(0, tempYPos - 4, 57, SCREEN_HEIGHT - tempYPos, BLACK);
     display.drawBitmap(degXPos, degYPos, degIcon, DEGICON_WIDTH, DEGICON_HEIGHT, WHITE);
     display.setFont();
-    display.writeLine(0, tempYPos - 4, 31, tempYPos - 4, WHITE);
+    display.writeLine(0, tempYPos - 5, 58, tempYPos - 5, WHITE);            //horizontal line
+    display.writeLine(58, 0, 58, SCREEN_HEIGHT, WHITE);                     //vertical line
 #endif
+
     //Temperature
     int16_t t = temperature;
     uint16_t dec = (temperature * 10);
@@ -235,7 +262,7 @@ void drawTemperature(void)
 #if (ORIENTATION == PORTRAIT)
     display.setCursor(0, tempYPos);
 #elif (ORIENTATION == LANDSCAPE)
-    display.setCursor(0, tempYPos);
+    display.setCursor(20, tempYPos);
 #endif
     display.print(str);
 }
@@ -254,7 +281,7 @@ void drawGearInfo(int16_t gear)
 
     display.clearDisplay();
 
-    #ifdef _ARROWINDICATORS_
+#ifdef _ARROWINDICATORS_
     //Possible changes
     if(gear == 0)
     {
@@ -272,27 +299,26 @@ void drawGearInfo(int16_t gear)
         display.drawBitmap(upXPos, upYPos, upIcon, ARROWICON_WIDTH, ARROWICON_HEIGHT, WHITE);
         display.drawBitmap(dnXPos, dnYPos, dnIcon, ARROWICON_WIDTH, ARROWICON_HEIGHT, WHITE);
     }
-    #endif
+#endif
 
     //Current gear number
+#if (defined(_SESSIONCOUNTER_) || defined(_THERMOMETER_)) && (ORIENTATION == LANDSCAPE)
+    //fixes a weird bug where graphic fonts are offset if mixed with the default font
+    display.setCursor(gears[gear].xOffset, yBasePos-6);
+#else
     display.setCursor(gears[gear].xOffset, yBasePos);
+#endif
     display.setFont(&FreeSansBold24pt7b);
     sprintf(str, "%s", gears[gear].name);
     display.print(str);
 
-    #ifdef _SESSIONCOUNTER_
-    //Current session counter
-    display.writeLine(0, yTopTextPos + 4, 31, yTopTextPos + 4, WHITE);
+#ifdef _SESSIONCOUNTER_
+    drawSessionCounter();
+#endif
 
-    display.setCursor(0, yTopTextPos);
-    display.setFont();
-    sprintf(str, "% 5lu", changeCounter);
-    display.print(str);
-    #endif
-
-    #ifdef _THERMOMETER_
+#ifdef _THERMOMETER_
     drawTemperature();
-    #endif
+#endif
 
     display.display();
 }
