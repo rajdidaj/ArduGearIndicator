@@ -8,6 +8,9 @@ you have the Nordic Semiconductor nfr52 platform installed.
 The projects will have to be built with the following settings in your platformio.ini:
 
 [env:Arduino_Primo_Core]
+
 platform = nordicnrf52
+
 board = PRIMO_CORE
+
 framework = arduino
