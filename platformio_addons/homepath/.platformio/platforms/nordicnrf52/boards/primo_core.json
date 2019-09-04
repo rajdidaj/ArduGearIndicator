@@ -1,0 +1,37 @@
+{
+  "build": {
+    "core": "nRF5",
+    "cpu": "cortex-m4",
+    "extra_flags": "-DARDUINO_PRIMO_CORE",
+    "f_cpu": "64000000L",
+    "mcu": "nrf52832",
+    "ldscript": "nrf52_xxaa.ld",
+    "variant": "PrimoCore"
+  },
+  "connectivity": [
+    "bluetooth"
+  ],
+  "debug": {
+    "default_tools": [
+      "jlink"
+    ],
+    "jlink_device": "nRF52840_xxAA",
+    "onboard_tools": [
+      "cmsis-dap",
+      "jlink"
+    ],
+    "svd_path": "nrf52.svd"
+  },
+  "frameworks": [
+    "arduino",
+    "mbed"
+  ],
+  "name": "Arduino Primo Core",
+  "upload": {
+    "maximum_ram_size": 65536,
+    "maximum_size": 524288,
+    "protocol": "jlink"
+  },
+  "url": "https://store.arduino.cc/arduino-primo-core",
+  "vendor": "Arduino"
+} 
