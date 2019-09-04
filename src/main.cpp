@@ -80,7 +80,7 @@ const indicator_t gears[7] =
 };
 #endif
 
-const int16_t ledPin = 13;
+const int16_t ledPin = LED_BUILTIN;
 
 #if (ORIENTATION == PORTRAIT)
 const int16_t yBasePos = 60;
