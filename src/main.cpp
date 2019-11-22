@@ -356,8 +356,8 @@ int16_t gearChanged(int16_t gear, int16_t lastGear)
 */
 float measureT(void)
 {
-    uint8_t T[2];
-    uint8_t *tp = T;
+    uint8_t buf[2];
+    uint8_t *tp = buf;
     const uint8_t lm = 0x4f;
 
     Wire.beginTransmission(lm);
@@ -370,10 +370,10 @@ float measureT(void)
         *tp = Wire.read(); // receive a byte as character
         tp++;
     }
-    float Tf = (T[0] * 256 + T[1]) >> 7;
-    Tf /= 2.0;
 
-    return Tf;
+    int16_t T = (buf[0] * 256 + buf[1]) >> 7;
+
+    return T / 2.0;
 }
 /*
 **------------------------------------------------------------------------------
