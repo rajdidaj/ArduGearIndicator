@@ -118,7 +118,7 @@ const int16_t dnYPos = yBasePos - 15;
 #endif
 #endif
 
-#define SLEEPDELAY          1000U
+#define SLEEPDELAY          10000U
 
 /*
 **------------------------------------------------------------------------------
@@ -134,7 +134,7 @@ float measureT(void);
 **------------------------------------------------------------------------------
 */
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1, 200000, 200000);
-Adafruit_ADS1115 adc(0x48);
+
 static uint32_t changeCounter = 0;
 static float temperature = 12.34;
 static int16_t firstRun = true;
@@ -356,16 +356,24 @@ int16_t gearChanged(int16_t gear, int16_t lastGear)
 */
 float measureT(void)
 {
-#define CALVALUE    6.144
-#define CALOFFSET   4.0
-    float retVal;
+    uint8_t T[2];
+    uint8_t *tp = T;
+    const uint8_t lm = 0x4f;
 
-    retVal = (adc.readADC_SingleEnded(0)*CALVALUE)/32767.0;
+    Wire.beginTransmission(lm);
+    Wire.write(byte(0x00)); //read temperature register
+    Wire.endTransmission();
 
-    retVal /= 0.01;
-    retVal -= (273.15 + CALOFFSET);
+    Wire.requestFrom(lm, 2);
+    while(Wire.available())    // slave may send less than requested
+    {
+        *tp = Wire.read(); // receive a byte as character
+        tp++;
+    }
+    float Tf = (T[0] * 256 + T[1]) >> 7;
+    Tf /= 2.0;
 
-    return retVal;
+    return Tf;
 }
 /*
 **------------------------------------------------------------------------------
