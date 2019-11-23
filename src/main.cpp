@@ -393,6 +393,8 @@ float measureT(void)
         p--;
     }
 
+    // ToDo: get the "internal" temperature and select the best or similar
+
     return b16.i16 / 256.0;
 }
 
