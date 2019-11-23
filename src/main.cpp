@@ -47,6 +47,13 @@ typedef struct
     uint8_t xOffset;
 }indicator_t;
 
+typedef union
+{
+    uint8_t     u8[2];
+    uint16_t    u16;
+    int16_t     i16;
+}b16_t;
+
 /*
 **------------------------------------------------------------------------------
 ** Constants
@@ -356,24 +363,25 @@ int16_t gearChanged(int16_t gear, int16_t lastGear)
 */
 float measureT(void)
 {
-    uint8_t buf[2];
-    uint8_t *tp = buf;
-    const uint8_t lm = 0x4f;
+    const uint8_t LM = 0x4f;
+    const uint8_t T_REG  = 0x00;
+    const uint8_t T_SIZE = 2;
 
-    Wire.beginTransmission(lm);
-    Wire.write(byte(0x00)); //read temperature register
+    b16_t b16 = {0};
+    uint8_t *p = &b16.u8[T_SIZE - 1];
+
+    Wire.beginTransmission(LM);
+    Wire.write(byte(T_REG)); //read temperature register
     Wire.endTransmission();
 
-    Wire.requestFrom(lm, 2);
+    Wire.requestFrom(LM, T_SIZE);
     while(Wire.available())    // slave may send less than requested
     {
-        *tp = Wire.read(); // receive a byte as character
-        tp++;
+        *p = Wire.read(); // receive a byte as character
+        p--;
     }
 
-    int16_t T = (buf[0] * 256 + buf[1]);
-
-    return T / 256.0;
+    return b16.i16 / 256.0;
 }
 /*
 **------------------------------------------------------------------------------
