@@ -458,7 +458,7 @@ float readHTS221(void)
         *p = Wire1.read();
         p++;
     }
-    
+
     float T0_degC = (cal.T0_degC_x8 + (1 << 8) * (cal.T1_T0msb & 0x03)) / 8.0; 
     float T1_degC = (cal.T1_degC_x8 + (1 << 6) * (cal.T1_T0msb & 0x0C)) / 8.0; // Value is in 3rd and fourth bit, so we only need to shift this value 6 more bits.
     float T_DegC = (T0_degC + (T_OUT - cal.T0_OUT) * (T1_degC - T0_degC) / (cal.T1_OUT - cal.T0_OUT)); 
@@ -481,10 +481,11 @@ float measureT(void)
     swoprintf("Te: %d\n", (int32_t)Te);
 
     // Internal sensor
-    float Ti = readHTS221();
-    swoprintf("Ti: %d\n", (int32_t)Ti);  
+    // float Ti = readHTS221();
+    // swoprintf("Ti: %d\n", (int32_t)Ti);  
+    // return (Ti + Te) / 2.0;
 
-    return (Ti + Te) / 2.0;
+    return Te;
 }
 
 /*
