@@ -18,6 +18,7 @@
 #include <Adafruit_ADS1015.h>
 #include <fonts/FreeSansBold24pt7b.h>
 #include <stdint.h>
+#include <stdarg.h>
 #include <bitmaps.h>
 
 /*
@@ -78,7 +79,7 @@ const indicator_t gears[7] =
 const indicator_t gears[7] =
 {
     { "1", 2, 64 },
-    { "N", 3, 60 },
+    { "N", 0, 60 },
     { "2", 4, 64 },
     { "3", 5, 64 },
     { "4", 6, 64 },
@@ -134,6 +135,7 @@ const int16_t dnYPos = yBasePos - 15;
 */
 void drawGearInfo(int16_t);
 float measureT(void);
+void swoprintf(const char *, ...);
 
 /*
 **------------------------------------------------------------------------------
@@ -187,6 +189,15 @@ void setup(void)
     uint16_t i;
 
     pinMode(ledPin, OUTPUT);
+
+    #define ENABLE_SWO
+    // Enable SWO
+    NRF_CLOCK->TRACECONFIG = (CLOCK_TRACECONFIG_TRACEPORTSPEED_4MHz << CLOCK_TRACECONFIG_TRACEPORTSPEED_Pos);
+
+    NRF_CLOCK->TRACECONFIG |= CLOCK_TRACECONFIG_TRACEMUX_Serial << CLOCK_TRACECONFIG_TRACEMUX_Pos;
+
+    ITM->TCR |= 1;
+    ITM->TER |= 1;
 
     Serial.begin(19200);
     Wire.begin();
@@ -318,6 +329,7 @@ void drawGearInfo(int16_t gear)
     display.setFont(&FreeSansBold24pt7b);
     sprintf(str, "%s", gears[gear].name);
     display.print(str);
+    swoprintf("New gear: %s\n", gears[gear].name);
 
 #ifdef _SESSIONCOUNTER_
     drawSessionCounter();
@@ -383,6 +395,29 @@ float measureT(void)
 
     return b16.i16 / 256.0;
 }
+
+/*
+**------------------------------------------------------------------------------
+** swoprintf:
+**
+** Like printf but for swo
+**------------------------------------------------------------------------------
+*/
+void swoprintf(const char *format, ...)
+{
+    static char tmpStr[128] = { 0 };
+
+    va_list argptr;
+    va_start(argptr, format);
+    vsprintf(tmpStr, format, argptr);
+    va_end(argptr);
+
+    for(uint32_t i = 0 ; i < strlen(tmpStr) && i < sizeof(tmpStr) ; i++)
+    {
+        ITM_SendChar(tmpStr[i]);
+    }
+}
+
 /*
 **------------------------------------------------------------------------------
 ** loop:
